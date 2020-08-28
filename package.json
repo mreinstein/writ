@@ -29,6 +29,9 @@
     "literate",
     "markdown"
   ],
+  "engines" : {
+    "node" : ">=12.17"
+  },
   "author": "Arun Srinivasan",
   "license": "MIT",
   "readmeFilename": "README.md"
