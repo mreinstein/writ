@@ -1,15 +1,15 @@
-var fs     = require('fs');
-var join   = require('path').join;
-var exec   = require('child_process').exec;
-var tap    = require('tap');
+import fs       from 'fs';
+import { join } from 'path';
+import { exec } from 'child_process';
+import tap      from 'tap';
 
 
-var read   = fs.readFileSync;
-var files  = fs.readdirSync;
-var rm     = fs.unlinkSync;
+const read   = fs.readFileSync;
+const files  = fs.readdirSync;
+const rm     = fs.unlinkSync;
 
-var fixturesDir = 'test/fixtures';
-var fixtures = cleanFixtures();
+const fixturesDir = 'test/fixtures';
+const fixtures = cleanFixtures();
 
 
 function cleanFixtures () {
@@ -22,13 +22,12 @@ function cleanFixtures () {
 
 
 exec('node writ.js "test/fixtures/*.md"', function () {
+  for (let i =0; i < fixtures.length; i += 2) {
+    const md = fixtures[i];
+    const out = fixtures[i+1];
 
-  for (var i =0; i < fixtures.length; i += 2) {
-    var md = fixtures[i];
-    var out = fixtures[i+1];
-
-    var actual = read(join(fixturesDir, out.replace('.out', '')), 'utf8');
-    var expected = read(join(fixturesDir, out), 'utf8');
+    const actual = read(join(fixturesDir, out.replace('.out', '')), 'utf8');
+    const expected = read(join(fixturesDir, out), 'utf8');
     tap.equal(actual, expected);
   }
 

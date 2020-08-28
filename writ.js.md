@@ -9,11 +9,11 @@ CLI to compile your Markdown files to your target language of choice.
 
     #!/usr/bin/env node
 
-    var fs = require('fs');
-    var cli = require('commander');
-    var path = require('path');
-    var glob = require('glob').sync;
-    var marked = require('marked');
+    import fs     from 'fs';
+    import cli    from 'commander';
+    import path   from 'path';
+    import glob   from 'glob';
+    import marked from 'marked';
 
 
 Processing Files
@@ -244,10 +244,8 @@ exit.
 glob, print an error and exit.
 
 
-    var glob = require('glob').sync;
-
     var inputs = cli.args.reduce(function(out, fileglob) {
-      return out.concat(glob(fileglob));
+      return out.concat(glob.sync(fileglob));
     }, []);
 
     if (!inputs.length)
