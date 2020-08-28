@@ -92,15 +92,15 @@ So the following [Markdown][md]:
     ```js
     //== requires ==//
 
-    var marked = require('marked');
-    var fs = require('fs');
+    import marked from 'marked';
+    import fs     from 'fs';
     ```
 
 Would compile to:
 
 ```js
-var marked = require('marked');
-var fs = require('fs');
+import marked from 'marked';
+import fs     from 'fs';
 ```
 
 A name for sections can have internal whitespace, but it obviously should match
@@ -171,4 +171,3 @@ your library.
 [litcoffee]: http://ashkenas.com/literate-coffeescript/
 [md]: http://daringfireball.net/projects/markdown/
 [shebang]: http://en.wikipedia.org/wiki/Shebang_(Unix)
-[npm]: https://npmjs.org/
