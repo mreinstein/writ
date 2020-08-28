@@ -28,14 +28,18 @@ Installation and Usage
 
 **Writ** is available on [npm][npm].
 
-    npm install -g writ
+```bash
+npm install -g writ
+```
 
 To use it, just run `writ` from the command line, specifying which
 [Markdown][md] files you want to compile. By default, it compiles the output in
 the same directory, you can pass the `--dir` flag to specify a different
 destination directory:
 
-    writ "src/*.md" --dir build
+```bash
+writ "src/*.md" --dir build
+```
 
 
 Syntax
@@ -67,7 +71,7 @@ To keep a code block from being included in the generated output, start the
 code block with a line starting with:
 
     //!! This is an ignored code block
-
+    
     //!! Also ignored !!//
 
 
@@ -83,18 +87,20 @@ it with `//::`.
 
 So the following [Markdown][md]:
 
-    # Main code chunk
+~~~markdown
+# Main code chunk
 
-    ```js
-    //:: requires :://
-    ```
+```js
+//:: requires :://
+```
 
-    ```js
-    //== requires ==//
+```js
+//== requires ==//
 
-    import marked from 'marked';
-    import fs     from 'fs';
-    ```
+import marked from 'marked';
+import fs     from 'fs';
+```
+~~~
 
 Would compile to:
 
@@ -128,23 +134,25 @@ H2-level header to name all the sections "under" a specific heading.
 
 So this...
 
-    ```
-    //:: Utilities :://
-    ```
+~~~markdown
+```
+//:: Utilities :://
+```
 
-    ##== Utilities
+##== Utilities
 
-    noop
+noop
 
-        function noop() {}
+    function noop() {}
 
-    add
+add
 
-        function add(x, y) { return x + y; }
+    function add(x, y) { return x + y; }
 
-    mul
+mul
 
-        function mul(x, y) { return x * y; }
+    function mul(x, y) { return x * y; }
+~~~
 
 Would compile to:
 
