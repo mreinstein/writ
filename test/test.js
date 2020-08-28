@@ -1,16 +1,18 @@
-var fs = require('fs');
-var read = fs.readFileSync;
-var files = fs.readdirSync;
-var rm = fs.unlinkSync;
-var join = require('path').join;
-var assert = require('assert');
-var print = require('util').print;
-var exec = require('child_process').exec;
+var fs     = require('fs');
+var join   = require('path').join;
+var exec   = require('child_process').exec;
+var tap    = require('tap');
+
+
+var read   = fs.readFileSync;
+var files  = fs.readdirSync;
+var rm     = fs.unlinkSync;
 
 var fixturesDir = 'test/fixtures';
 var fixtures = cleanFixtures();
 
-function cleanFixtures() {
+
+function cleanFixtures () {
   files(fixturesDir).forEach(function(file) {
     if (!/(\.out|\.md)/.test(file))
       rm(join(fixturesDir, file));
@@ -18,23 +20,18 @@ function cleanFixtures() {
   return files(fixturesDir);
 }
 
-function pairs(array, fn) {
-  var i = 0, len = array.length;
-  for (; i < len; i += 2) fn(array[i], array[i + 1]);
-}
 
-function test(md, out) {
-  var actual = read(join(fixturesDir, out.replace('.out', '')), 'utf8');
-  var expected = read(join(fixturesDir, out), 'utf8');
-  var hr = '-----------------------------------------\n';
-  var msg = md + '\n' + hr + actual + hr + expected + hr
+exec('node writ.js "test/fixtures/*.md"', function () {
 
-  assert.equal(actual, expected, msg);
-  print('.');
-}
+  for (var i =0; i < fixtures.length; i += 2) {
+    var md = fixtures[i];
+    var out = fixtures[i+1];
 
-exec('node writ.js "test/fixtures/*.md"', function() {
-  pairs(fixtures, test);
+    var actual = read(join(fixturesDir, out.replace('.out', '')), 'utf8');
+    var expected = read(join(fixturesDir, out), 'utf8');
+    tap.equal(actual, expected);
+  }
+
   console.log();
   cleanFixtures();
 });

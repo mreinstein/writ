@@ -11,13 +11,17 @@
     "glob": "~3.1.21",
     "marked": "~0.2.8"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "tap": "^14.10.8"
+  },
   "bin": {
     "writ": "./writ.js"
   },
   "preferGlobal": true,
   "scripts": {
-    "test": "make test"
+    "build": "node writ.js writ.js.md",
+    "clean": "rm -f writ.js",
+    "test": "node test/test.js"
   },
   "repository": "https://github.com/satchmorun/writ",
   "keywords": [
