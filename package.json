@@ -21,10 +21,9 @@
   "preferGlobal": true,
   "scripts": {
     "build": "node writ.js writ.js.md",
-    "clean": "rm -f writ.js",
     "test": "node test/test.js"
   },
-  "repository": "https://github.com/satchmorun/writ",
+  "repository": "https://github.com/mreinstein/writ",
   "keywords": [
     "literate",
     "markdown"
