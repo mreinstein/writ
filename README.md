@@ -26,7 +26,8 @@ convention for generating the target files: a [Markdown][md] file named
 Installation and Usage
 ----------------------
 
-**Writ** is available on [npm][npm].
+**Writ** is available on [npm][npm]. It requires Node v12.17 or higher.
+
 
 ```bash
 npm install -g writ
