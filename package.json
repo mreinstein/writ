@@ -1,6 +1,6 @@
 {
   "name": "writ",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Light-weight Markdown-based literate programming",
   "main": "writ.js",
   "type": "module",
@@ -28,8 +28,8 @@
     "literate",
     "markdown"
   ],
-  "engines" : {
-    "node" : ">=12.17"
+  "engines": {
+    "node": ">=12.17"
   },
   "author": "Arun Srinivasan",
   "license": "MIT",
