@@ -1,6 +1,6 @@
 {
   "name": "writ",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Light-weight Markdown-based literate programming",
   "main": "writ.js",
   "type": "module",
