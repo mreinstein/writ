@@ -1,7 +1,8 @@
-import fs       from 'fs';
-import { join } from 'path';
-import { exec } from 'child_process';
-import tap      from 'tap';
+import fs              from 'fs';
+import { join }        from 'path';
+import { execSync }    from 'child_process';
+import { describe, it, before, after } from 'node:test';
+import { strictEqual }                 from 'node:assert';
 
 
 const read   = fs.readFileSync;
@@ -9,7 +10,6 @@ const files  = fs.readdirSync;
 const rm     = fs.unlinkSync;
 
 const fixturesDir = 'test/fixtures';
-const fixtures = cleanFixtures();
 
 
 function cleanFixtures () {
@@ -21,16 +21,24 @@ function cleanFixtures () {
 }
 
 
-exec('node writ.js "test/fixtures/*.md"', function () {
-  for (let i =0; i < fixtures.length; i += 2) {
-    const md = fixtures[i];
-    const out = fixtures[i+1];
+describe('writ', function () {
+  let fixtures;
 
-    const actual = read(join(fixturesDir, out.replace('.out', '')), 'utf8');
-    const expected = read(join(fixturesDir, out), 'utf8');
-    tap.equal(actual, expected);
-  }
+  before(function () {
+    fixtures = cleanFixtures();
+    execSync('node writ.js "test/fixtures/*.md"');
+  });
 
-  console.log();
-  cleanFixtures();
+  after(function () {
+    cleanFixtures();
+  });
+
+  it('compiles all fixtures correctly', function () {
+    for (let i = 0; i < fixtures.length; i += 2) {
+      const out = fixtures[i+1];
+      const actual = read(join(fixturesDir, out.replace('.out', '')), 'utf8');
+      const expected = read(join(fixturesDir, out), 'utf8');
+      strictEqual(actual, expected, fixtures[i]);
+    }
+  });
 });

@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
-import fs     from 'fs';
-import cli    from 'commander';
-import path   from 'path';
-import glob   from 'glob';
-import marked from 'marked';
+import fs            from 'node:fs';
+import { parseArgs } from 'node:util';
+import path          from 'node:path';
+import { marked }    from 'marked';
 function writ (file, outputDir) {
   const mdfile = read(file);
   const source = compile(mdfile.src, mdfile.lang);
@@ -23,13 +22,16 @@ function out (file, outputDir) {
   const outpath = outputDir || path.dirname(file);
   return path.join(outpath, outname);
 }
+function normalize (src) {
+  return src.replace(/^##(==|!!)/gm, '## $1');
+}
 function compile (src, lang) {
   const source = new Source(lang);
-  marked.lexer(src).forEach(function(block) { source.push(block); });
+  marked.lexer(normalize(src)).forEach(function(block) { source.push(block); });
   return source.assemble();
 }
 function codeblocks (src) {
-  return marked.lexer(src)
+  return marked.lexer(normalize(src))
     .filter(function(block) { return block.type === 'code'; })
     .map(function(block) { return block.text; });
 }
@@ -115,21 +117,28 @@ Source.prototype.resolveReferences = function (code) {
       : match;
   });
 }
-cli.usage('[options] <glob ...>')
-   .option('-d, --dir <path>', 'change output directory')
-   .parse(process.argv);
-if (!cli.args.length)
-  cli.help();
-const inputs = cli.args.reduce(function (out, fileglob) {
-  return out.concat(glob.sync(fileglob));
+const { values: opts, positionals: args } = parseArgs({
+  options: {
+    dir:  { type: 'string',  short: 'd' },
+    help: { type: 'boolean', short: 'h' },
+  },
+  allowPositionals: true,
+  strict: true,
+});
+if (opts.help || !args.length) {
+  console.log('Usage: writ [options] <glob ...>\n\nExample:  writ "src/*.md" --dir build\n\nOptions:\n  -d, --dir <path>  change output directory\n  -h, --help        display this help');
+  process.exit(0);
+}
+const inputs = args.reduce(function (out, fileglob) {
+  return out.concat(fs.globSync(fileglob));
 }, []);
 
 if (!inputs.length)
   error("Globs didn't match any source files");
-if (cli.dir && !fs.existsSync(cli.dir))
-  error('Directory does not exist: ' + JSON.stringify(cli.dir));
+if (opts.dir && !fs.existsSync(opts.dir))
+  error('Directory does not exist: ' + JSON.stringify(opts.dir));
 
-const outputDir = cli.dir;
+const outputDir = opts.dir;
 inputs.forEach(function (file) {
   writ(file, outputDir);
 });

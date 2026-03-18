@@ -10,11 +10,10 @@ CLI to compile your Markdown files to your target language of choice.
 ```javascript
 #!/usr/bin/env node
 
-import fs     from 'fs';
-import cli    from 'commander';
-import path   from 'path';
-import glob   from 'glob';
-import marked from 'marked';
+import fs            from 'node:fs';
+import { parseArgs } from 'node:util';
+import path          from 'node:path';
+import { marked }    from 'marked';
 ```
 
 
@@ -65,10 +64,29 @@ Compilation
 
 The `compile` function is the entry point to the actual compilation work.
 
+Writ uses `##==` and `##!!` as heading directives (e.g. `##== section name`).
+Earlier versions of the [marked][marked] lexer treated `##==` as a level-2
+heading, but marked v4+ follows the [CommonMark spec][commonmark] which
+requires at least one space between the `#` characters and the heading text.
+Without that space, `##== foo` is lexed as a paragraph rather than a heading,
+and section directives silently stop working.
+
+The `normalize` function inserts the required space so that existing writ
+source files continue to compile correctly regardless of whether they were
+written with or without the space.
+
+[commonmark]: https://spec.commonmark.org/0.31.2/#atx-headings
+
+```javascript
+function normalize (src) {
+  return src.replace(/^##(==|!!)/gm, '## $1');
+}
+```
+
 ```javascript
 function compile (src, lang) {
   const source = new Source(lang);
-  marked.lexer(src).forEach(function(block) { source.push(block); });
+  marked.lexer(normalize(src)).forEach(function(block) { source.push(block); });
   return source.assemble();
 }
 ```
@@ -79,7 +97,7 @@ from the given `src`.
 
 ```javascript
 function codeblocks (src) {
-  return marked.lexer(src)
+  return marked.lexer(normalize(src))
     .filter(function(block) { return block.type === 'code'; })
     .map(function(block) { return block.text; });
 }
@@ -262,29 +280,35 @@ and a `--dir` option to change the compilation output directory.
 By default, **writ** writes generates compiled source files alongside their
 respective Markdown progenitors.
 
-**Writ** uses [commander][commander] for options parsing.
+We use Node's built-in `parseArgs` for options parsing.
 
 ```javascript
-cli.usage('[options] <glob ...>')
-   .option('-d, --dir <path>', 'change output directory')
-   .parse(process.argv);
+const { values: opts, positionals: args } = parseArgs({
+  options: {
+    dir:  { type: 'string',  short: 'd' },
+    help: { type: 'boolean', short: 'h' },
+  },
+  allowPositionals: true,
+  strict: true,
+});
 ```
 
 We can't do anything if no files are specified, so just print the usage and
 exit.
 
 ```javascript
-if (!cli.args.length)
-  cli.help();
+if (opts.help || !args.length) {
+  console.log('Usage: writ [options] <glob ...>\n\nExample:  writ "src/*.md" --dir build\n\nOptions:\n  -d, --dir <path>  change output directory\n  -h, --help        display this help');
+  process.exit(0);
+}
 ```
 
-[node-glob][glob] helps us grab all the specified files. If none match the
-glob, print an error and exit.
-
+Node's built-in `fs.globSync` helps us grab all the specified files. If none
+match the glob, print an error and exit.
 
 ```javascript
-const inputs = cli.args.reduce(function (out, fileglob) {
-  return out.concat(glob.sync(fileglob));
+const inputs = args.reduce(function (out, fileglob) {
+  return out.concat(fs.globSync(fileglob));
 }, []);
 
 if (!inputs.length)
@@ -295,10 +319,10 @@ If an output directory was specified but doesn't exist, print an error and
 exit.
 
 ```javascript
-if (cli.dir && !fs.existsSync(cli.dir))
-  error('Directory does not exist: ' + JSON.stringify(cli.dir));
+if (opts.dir && !fs.existsSync(opts.dir))
+  error('Directory does not exist: ' + JSON.stringify(opts.dir));
 
-const outputDir = cli.dir;
+const outputDir = opts.dir;
 ```
 
 Finally, process all the files
@@ -336,7 +360,5 @@ function error (msg) {
 ```
 
 
-[marked]: https://github.com/chjj/marked
-[glob]: https://github.com/isaacs/node-glob
-[commander]: https://github.com/visionmedia/commander.js
+[marked]: https://github.com/markedjs/marked
 [escapere]: http://simonwillison.net/2006/Jan/20/escape/
